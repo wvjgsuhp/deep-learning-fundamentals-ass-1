@@ -1,0 +1,114 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage[labelfont=bf]{caption}
+\usepackage[table]{xcolor}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage[a4paper,margin=4cm]{geometry}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\usepackage[round]{natbib}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[title]{appendix}
+\usepackage{bm}
+\usepackage{textcomp}
+\usepackage{mathtools}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{ragged2e}
+\usepackage{float}
+\usepackage{enumitem}
+
+\bibliographystyle{plainnat}
+
+% Include other packages here, before hyperref.
+
+% If you comment hyperref and then uncomment it, you should delete
+% egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
+% run, let it finish, and you should be clear).
+\usepackage[breaklinks=true,bookmarks=false]{hyperref}
+
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+%\ifcvprfinal\pagestyle{empty}\fi
+%\setcounter{page}{4321}
+\begin{document}
+
+%%%%%%%%% TITLE
+\title{\LaTeX\ Author Guidelines for CVPR Proceedings}
+
+\author{Wasin Pipattungsakul \\
+The University of Adelaide \\
+{\tt\small wasin.pipattungsakul@adelaide.edu.au}
+}
+
+\maketitle
+%\thispagestyle{empty}
+
+%%%%%%%%% ABSTRACT
+\begin{abstract}
+   The ABSTRACT is to be in fully-justified italicized text, at the top
+   of the left-hand column, below the author and affiliation
+   information. Use the word ``Abstract'' as the title, in 12-point
+   Times, boldface type, centered relative to the column, initially
+   capitalized. The abstract is to be in 10-point, single-spaced type.
+   Leave two blank lines after the Abstract, then begin the main text.
+   Look at previous CVPR abstracts to get a feel for style and length.
+\end{abstract}
+
+%%%%%%%%% BODY TEXT
+\section{Introduction}
+
+Please \citep{gu-2021} follow the steps outlined below when submitting your manuscript to
+the IEEE Computer Society Press.  This style guide now has several
+important modifications (for example, you are no longer warned against the
+use of sticky tape to attach your artwork to the paper), so all authors
+should read this new version.
+
+%-------------------------------------------------------------------------
+\subsection{Perceptron}
+
+\noindent
+
+\begin{figure*}
+\begin{center}
+\fbox{\rule{0pt}{2in} \rule{.9\linewidth}{0pt}}
+\end{center}
+   \caption{Example of a short caption, which should be centered.}
+\label{fig:short}
+\end{figure*}
+
+%------------------------------------------------------------------------
+\section{Methods}
+
+
+%-------------------------------------------------------------------------
+\subsection{Data}
+
+
+%-------------------------------------------------------------------------
+\subsection{Model Training}
+
+
+%-------------------------------------------------------------------------
+\section{Code}
+
+
+%-------------------------------------------------------------------------
+\section{Results}
+
+
+%-------------------------------------------------------------------------
+\section{Conclusion}
+
+
+%------------------------------------------------------------------------
+\clearpage
+\bibliography{references.bib}
+
+\end{document}
