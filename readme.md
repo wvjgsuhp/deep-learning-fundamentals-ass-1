@@ -12,3 +12,21 @@
     source env/bin/activate
     pip install -r requirements.txt
     ```
+
+## Usage
+
+1.  Run experiment.
+
+    ```bash
+    ./main.py
+    ```
+
+2.  Render report.
+
+    ```bash
+    cd latex
+    pdflatex --shell-escape report.tex \
+        && bibtex report.aux \
+        && pdflatex --shell-escape report.tex \
+        && pdflatex --shell-escape report.tex
+    ```
