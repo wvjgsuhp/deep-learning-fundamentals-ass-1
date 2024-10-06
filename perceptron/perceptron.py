@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from sklearn.metrics import roc_auc_score
 
 from .custom_types import NPFloatMatrix, NPFloats, PDFloats
 
@@ -28,7 +27,7 @@ class Perceptron:
 
             no_improvement_steps = 0
             self.best_weights = np.array([])
-            best_auc = 0
+            self.best_acc = 0
 
         if isinstance(y, pd.Series):
             y = y.to_numpy()
@@ -39,21 +38,21 @@ class Perceptron:
 
         for epoch in range(epochs):
             predictions = self._predict(x)
-            loss = predictions - y
-            self.weights -= learning_rate * (x.T * loss).sum(axis=1)
+            loss = y - predictions
+            self.weights += learning_rate * (x.T * loss).sum(axis=1)
 
             if early_stopping > 0:
                 predictions_validate = self._predict(x_validate)
-                auc = roc_auc_score(y_validate, predictions_validate)
-                if auc > best_auc:
-                    best_auc = auc
+                acc = np.mean(y_validate == predictions_validate)
+                if acc > self.best_acc:
+                    self.best_acc = acc
                     self.best_weights = self.weights.copy()
                     no_improvement_steps = 0
                 else:
                     no_improvement_steps += 1
 
                 if no_improvement_steps >= early_stopping:
-                    print(f"Stopping after {epoch} epochs: auc={auc:.4f}")
+                    print(f"Stopping after {epoch} epochs: acc={self.best_acc:.4f}")
                     break
 
     def predict(self, x: NPFloatMatrix | pd.DataFrame) -> NPFloats:

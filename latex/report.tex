@@ -6,7 +6,7 @@
 \usepackage{multirow}
 \usepackage{amsfonts}
 \usepackage{amssymb}
-\usepackage{amsmath}
+\usepackage[tbtags]{amsmath}
 \usepackage[a4paper,margin=4cm]{geometry}
 \usepackage{lastpage}
 \usepackage{fancyhdr}
@@ -22,8 +22,19 @@
 \usepackage{ragged2e}
 \usepackage{float}
 \usepackage{enumitem}
+\usepackage{tabularx}
 
 \bibliographystyle{plainnat}
+\def\sumin{\sum_{i=1}^{n}}
+\def\bhline{\noalign{\hrule height 1pt}}
+
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+
+%table
+\definecolor{faintgrey}{RGB}{242, 242, 242}
+\def\evenrow{\rowcolor{faintgrey}}
+\captionsetup[table]{skip=0pt}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
 
 % Include other packages here, before hyperref.
 
@@ -52,36 +63,49 @@ The University of Adelaide \\
 
 %%%%%%%%% ABSTRACT
 \begin{abstract}
-   The ABSTRACT is to be in fully-justified italicized text, at the top
-   of the left-hand column, below the author and affiliation
-   information. Use the word ``Abstract'' as the title, in 12-point
-   Times, boldface type, centered relative to the column, initially
-   capitalized. The abstract is to be in 10-point, single-spaced type.
-   Leave two blank lines after the Abstract, then begin the main text.
-   Look at previous CVPR abstracts to get a feel for style and length.
+  The ABSTRACT is to be in fully-justified italicized text, at the top
+  of the left-hand column, below the author and affiliation
+  information. Use the word ``Abstract'' as the title, in 12-point
+  Times, boldface type, centered relative to the column, initially
+  capitalized. The abstract is to be in 10-point, single-spaced type.
+  Leave two blank lines after the Abstract, then begin the main text.
+  Look at previous CVPR abstracts to get a feel for style and length.
 \end{abstract}
 
 %%%%%%%%% BODY TEXT
 \section{Introduction}
 
-Please \citep{gu-2021} follow the steps outlined below when submitting your manuscript to
-the IEEE Computer Society Press.  This style guide now has several
-important modifications (for example, you are no longer warned against the
-use of sticky tape to attach your artwork to the paper), so all authors
-should read this new version.
+This work shows the implementation of a perceptron algorithm to identify people with diabetes from a publicly
+available dataset \citep{data}. The baseline model used to compare the performance of the perceptron algorithm
+was a logistic regression model. For simplicity, only accuracy was used as a metric to compare the performance
+of both models.
+
+%-------------------------------------------------------------------------
+\subsection{Diabetes Dataset}
+
+According to \citet{data}, the dataset originates from the National Institute of Diabetes and Digestive and
+Kidney Diseases. The dataset consists of 768 records of 8 features and 1 target label. The features are:
+
+\begin{itemize}
+  \item Pregnancies: Number of times pregnant
+  \item Glucose: Plasma glucose concentration
+  \item BloodPressure: Diastolic blood pressure (mm Hg)
+  \item SkinThickness: Triceps skin fold thickness (mm)
+  \item Insulin: 2-hour serum insulin (µU/ml)
+  \item BMI: Body mass index (kg/m\textsuperscript{2})
+  \item DiabetesPedigreeFunction: Diabetes pedigree function
+  \item Age: Age (years)
+\end{itemize}
+
+The target label is 1 if the person has diabetes and 0 otherwise.
 
 %-------------------------------------------------------------------------
 \subsection{Perceptron}
 
-\noindent
+A perceptron is an artificial neuron designed to mimic how a neuron might work \citep{rosenblatt-1958}. It can
+be used to classify linearly separable data. The implementation of the perceptron algorithm is explained later
+in Methods section.
 
-\begin{figure*}
-\begin{center}
-\fbox{\rule{0pt}{2in} \rule{.9\linewidth}{0pt}}
-\end{center}
-   \caption{Example of a short caption, which should be centered.}
-\label{fig:short}
-\end{figure*}
 
 %------------------------------------------------------------------------
 \section{Methods}
@@ -90,25 +114,176 @@ should read this new version.
 %-------------------------------------------------------------------------
 \subsection{Data}
 
+Diabetes data was split into:
+
+\begin{itemize}
+  \item Training set: 537 records
+  \item Validation set: 115 records
+  \item Test set: 116 records
+\end{itemize}
+
+Then, all numerical features were normalized according to those in the training set. Also, before training the
+model, the data was briefly explored to understand if there were any missing values. They would be imputed using
+the means of the feature in the training set.
+
+%-------------------------------------------------------------------------
+\subsection{Perceptron Algorithm}
+
+The perceptron algorithm implemented here consists of 2 parts, net input and activation function
+\citep{perceptron}. The net input can be calculated as
+\begin{align}
+  \text{net}_i &= \sum_{j=1}^{m} w_j x_{ij} - \theta  \\
+  &= \sum_{j=0}^{m} w_j x_{ij}, x_{i0} = 1, w_0 = -\theta \\
+  &= \bm{w}^T\bm{x}_i \label{eq:net-input}
+\end{align}
+where \( x_{ij} \) is a \( j \)th input feature of an \( i \)th record, \( w_j \) is the \( j \)th weight of the
+algorithm, \( m \) is the number of features, and \( \theta\in\mathbb{R} \). An acitvation function \( \phi \)
+used is a threshold function
+\begin{align}
+  \phi(x) &= \left\{
+    \begin{array}{ll}
+      1, & x \ge 0 \\
+      0, & x < 0
+    \end{array}
+  \right.\rlap{.} \label{eq:threshold-function}
+\end{align}
+
+The weights are randomly initialised (\( \bm{w}_0 \)) and updated with the following equations
+\begin{align}
+  \hat{y}_{t,i} &= \phi(\text{net}_{t,i}) \\
+  e_{t,i} &= y_i - \hat{y}_{t,i} \\
+  w_{t+1,j} &= w_{t,j} + \eta\sumin x_{ij}e_{t,i} \\
+  \bm{w}_{t+1} &= \bm{w}_t + \eta\sumin\bm{x}_i e_{t,i}
+\end{align}
+where $\hat{y}_{t,i}$ is the prediction of the $i$th record at the $t$th iteration, $e_{t,i}$ is the error of
+the $i$th record at the $t$th iteration, $y_i$ is the target label of the $i$th record, $\bm{w}_t$ is the
+weights at the $t$th iteration, and $\eta$ is the learning rate for each iteration. This learning rate $\eta$
+and the number of iterations are hyperparameters which can be tuned later.
 
 %-------------------------------------------------------------------------
 \subsection{Model Training}
 
+For all perceptron models, the hyperparameters were tuned using the training and validation sets according to
+table \ref{tab:hyperparameters}.
+\begin{table}[!ht]
+  \centering
+  \caption{Hyperparameters used to train and tune the models}
+  \label{tab:hyperparameters}
+  \begin{tabularx}{\columnwidth}{p{60pt}L}
+    \rowcolor{lightgray}
+    \bf Parameter         & \bf Value(s) \\
+    \bhline
+    Number of iterations  & 10,000, stopping after no improvement in 20 iterations \\
+    \evenrow
+    Learning rate         & [0.1, 0.01, 0.001]
+  \end{tabularx}
+\end{table}
+The best model was then chosen based on the accuracy from the validation set follow the formula
+\begin{align}
+  \text{accuracy} = 1 - \frac{\sumin\abs{y_i - \hat{y}_i}}{n}
+\end{align}
+where $y_i$ is the target label and $\hat{y}_i$ is the prediction of an $i$th record in the validation set.
+Then, the accuracy of the best model could be compared with that of the logistic regression model.
+
+If any imputation is required, the whole training process is executed again to compare the accuracy of the
+models after the imputation.
 
 %-------------------------------------------------------------------------
 \section{Code}
 
+The implementation can be found \href{https://github.com/wvjgsuhp/deep-learning-fundamentals-ass-1}{here}.
 
 %-------------------------------------------------------------------------
 \section{Results}
 
+%-------------------------------------------------------------------------
+\subsection{Exploratory Analysis}
+
+Table \ref{tab:missing-values} shows that there are no missing values for both features and target in the
+dataset.
+However, there are zeros shown in table which is not realistic for the following features:
+\begin{itemize}
+  \item A glucose below 40 mg/dL is fatal \citep{glucose}.
+  \item A blood pressure of 0 mm Hg is fatal.
+  \item Zero skin thickness is not possible.
+  \item Zero BMI indicates that the person weighs 0 kg which is not possible.
+\end{itemize}
+There are many causes for these zeros, for example, incorrect reading and incorrect data entry. These values
+would be imputed using the means of the respective feature from the training set.
+\noindent
+\begin{table}[!ht]
+  \caption{The number of missing and zero values in each feature}\label{tab:missing-values}
+  \begin{center}
+    \begin{tabularx}{\columnwidth}{p{81.5pt}LL}
+      \rowcolor{lightgray}
+      \textbf{Feature} & \textbf{\# of missings} & \textbf{\# of zeros} \\
+      \bhline
+      Pregnancies               & 0 & 111 \\
+      \evenrow
+      Glucose                   & 0 & 5 \\
+      BloodPressure             & 0 & 35 \\
+      \evenrow
+      SkinThickness             & 0 & 227 \\
+      Insulin                   & 0 & 374 \\
+      \evenrow
+      BMI                       & 0 & 11 \\
+      DiabetesPedigree-Function & 0 & 0 \\
+      \evenrow
+      Age                       & 0 & 0 \\
+      Outcome                   & 0 & 500
+    \end{tabularx}
+  \end{center}
+\end{table}
+
+%-------------------------------------------------------------------------
+\subsection{Model Performance}
+
+\noindent
+\begin{table}[!ht]
+  \centering
+  \caption{The performance of the models}
+  \label{tab:model-performance}
+  \begin{tabularx}{\columnwidth}{p{50pt}LLL}
+    \rowcolor{lightgray}
+    \bf Model & \multicolumn{3}{c}{\bf Accuracy} \\
+    \rowcolor{lightgray}
+              & \bf Train & \bf Valida-tion & \bf Test \\
+    \bhline
+    \multicolumn{4}{c}{\bf Without imputation} \\
+    \hline
+    Logistic regression & 0.801 & 0.704 & 0.741 \\
+    \evenrow
+    Perceptron          & 0.771 & 0.704 & 0.716 \\
+    \hline
+    \multicolumn{4}{c}{\bf With imputation} \\
+    \hline
+    Logistic regression & 0.793 & 0.722 & 0.724 \\
+    \evenrow
+    Perceptron          & 0.782 & 0.757 & 0.724 \\
+  \end{tabularx}
+\end{table}
+From table \ref{tab:model-performance}, a logistic regression model has the same validation accuracy (0.704) as
+a perceptron model without imputation. Thus, the logistic regression model would be chosen due to being simpler
+As an observation, its performance is also better on the test set (0.741 against 0.716).
+
+For the accuracy of the models after imputation, a perceptron model has considerably better accuracy (0.757)
+compared with that of a logistic regression model (0.722). Nevertheless, the observed accuracies (0.724) are the
+same for both models.
 
 %-------------------------------------------------------------------------
 \section{Conclusion}
 
+A perceptron algorithm can be used as a classification model and has comparable accuracy compared with a
+logistic regression model. Additionally, the quality of the data highly affects the performance of the model. To
+extend this work, we could
+\begin{enumerate}
+  \item measure the performance with different metrics,
+  \item use several larger datasets,
+  \item experiment with different activation functions, or
+  \item apply transformations to the features.
+\end{enumerate}
 
 %------------------------------------------------------------------------
-\clearpage
 \bibliography{references.bib}
 
 \end{document}
